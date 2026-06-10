@@ -13,16 +13,158 @@ enum Role {
   EMPLOYEE
 }
 
+enum ProjectStatus {
+  PLANNING
+  ACTIVE
+  COMPLETED
+  CANCELLED
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+}
 
 model User {
-  id          Int     @id @default(autoincrement())
+  id          Int      @id @default(autoincrement())
+
   firstName   String
   middleName  String?
   lastName    String
-  email       String @unique
+
+  email       String   @unique
   password    String
-  role        Role @default(EMPLOYEE)
+
+  role        Role     @default(EMPLOYEE)
+
+  employee    Employee?
+
+  createdProjects Project[] @relation("ProjectCreator")
+  assignedTasks   Task[]    @relation("TaskAssignee")
 
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+}
+
+model Department {
+  id          Int      @id @default(autoincrement())
+
+  name        String   @unique
+
+  employees   Employee[]
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Employee {
+  id            Int      @id @default(autoincrement())
+
+  userId        Int      @unique
+
+  departmentId  Int
+
+  designation   String
+
+  salary        Float?
+
+  joiningDate   DateTime
+
+  user          User @relation(fields: [userId], references: [id])
+
+  department    Department @relation(
+    fields: [departmentId],
+    references: [id]
+  )
+
+  projectMemberships ProjectMember[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Project {
+  id            Int      @id @default(autoincrement())
+
+  name          String
+
+  description   String?
+
+  status        ProjectStatus @default(PLANNING)
+
+  createdById   Int
+
+  createdBy     User @relation(
+    "ProjectCreator",
+    fields: [createdById],
+    references: [id]
+  )
+
+  members       ProjectMember[]
+
+  tasks         Task[]
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model ProjectMember {
+  id            Int      @id @default(autoincrement())
+
+  projectId     Int
+
+  employeeId    Int
+
+  project       Project @relation(
+    fields: [projectId],
+    references: [id]
+  )
+
+  employee      Employee @relation(
+    fields: [employeeId],
+    references: [id]
+  )
+
+  joinedAt      DateTime @default(now())
+
+  @@unique([projectId, employeeId])
+}
+
+model Task {
+  id            Int      @id @default(autoincrement())
+
+  title         String
+
+  description   String?
+
+  status        TaskStatus @default(TODO)
+
+  priority      Priority @default(MEDIUM)
+
+  projectId     Int
+
+  assignedToId  Int
+
+  dueDate       DateTime?
+
+  project       Project @relation(
+    fields: [projectId],
+    references: [id]
+  )
+
+  assignedTo    User @relation(
+    "TaskAssignee",
+    fields: [assignedToId],
+    references: [id]
+  )
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }
