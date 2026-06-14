@@ -1,27 +1,57 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
-
 import Admin from "./pages/Admin";
 import Manager from "./pages/Manager";
 import Employee from "./pages/Employee";
 
+import ProtectedRoute from "./components/ProtectedRoute";
+import DashboardLayout from "./layouts/DashboardLayout";
+import { SearchProvider } from "./utils/SearchContext";
+
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
+      <SearchProvider>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/" element={<Navigate to="/login" replace />} />
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<Signup />} />
 
-        {/* Public Routes */}
-        <Route path="/" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+          {/* Protected Dashboard Routes */}
+          <Route element={<DashboardLayout />}>
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute allowedRoles={["ADMIN"]}>
+                  <Admin />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/manager"
+              element={
+                <ProtectedRoute allowedRoles={["MANAGER"]}>
+                  <Manager />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/employee"
+              element={
+                <ProtectedRoute allowedRoles={["EMPLOYEE"]}>
+                  <Employee />
+                </ProtectedRoute>
+              }
+            />
+          </Route>
 
-        {/* Dashboard Routes */}
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/manager" element={<Manager />} />
-        <Route path="/employee" element={<Employee />} />
-
-      </Routes>
+          {/* Fallback Catch-all Route */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
+        </Routes>
+      </SearchProvider>
     </BrowserRouter>
   );
 }

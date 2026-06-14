@@ -85,72 +85,62 @@ function Login() {
   };
 
   return (
-    <div
-      style={{
-        maxWidth: "500px",
-        margin: "50px auto",
-        padding: "20px"
-      }}
-    >
-      <h1>Login</h1>
+    <div className="auth-container">
+      <div className="auth-card">
+        <h1 className="auth-title">Welcome Back</h1>
+        <p className="auth-subtitle">Log in to access your Company OS workspace</p>
 
-      {error && (
-        <p style={{ color: "red" }}>
-          {error}
+        {error && (
+          <div className="auth-error">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit}>
+          <div className="auth-form-group">
+            <label htmlFor="email">Email Address</label>
+            <input
+              id="email"
+              className="auth-input"
+              type="email"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              placeholder="name@company.com"
+              required
+            />
+          </div>
+
+          <div className="auth-form-group">
+            <label htmlFor="password">Password</label>
+            <input
+              id="password"
+              className="auth-input"
+              type="password"
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              placeholder="••••••••"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            className="auth-button"
+            disabled={loading}
+          >
+            {loading ? "Logging In..." : "Log In"}
+          </button>
+        </form>
+
+        <p className="auth-footer">
+          Don't have an account?{" "}
+          <Link to="/signup" className="auth-link">
+            Sign Up
+          </Link>
         </p>
-      )}
-
-      <form onSubmit={handleSubmit}>
-
-        <div>
-          <label>Email</label>
-          <br />
-
-          <input
-            type="email"
-            name="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <br />
-
-        <div>
-          <label>Password</label>
-          <br />
-
-          <input
-            type="password"
-            name="password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
-
-        <br />
-
-        <button
-          type="submit"
-          disabled={loading}
-        >
-          {loading
-            ? "Logging In..."
-            : "Login"}
-        </button>
-
-      </form>
-
-      <br />
-
-      <p>
-        Don't have an account?{" "}
-        <Link to="/signup">
-          Sign Up
-        </Link>
-      </p>
+      </div>
     </div>
   );
 }
