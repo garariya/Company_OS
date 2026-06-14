@@ -21,22 +21,22 @@ app.use(
 
 
 app.use(
-  "api/departments",
+  "/api/departments",
   departmentRoutes
 )
 
 app.use(
-  "api/employees",
+  "/api/employees",
   employeeRoutes
 )
 
 app.use(
-  "api/projects",
+  "/api/projects",
   projectRoutes
 )
 
 app.use(
-  "api/tasks",
+  "/api/tasks",
   taskRoutes
 )
 export default app;

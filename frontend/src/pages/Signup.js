@@ -48,23 +48,29 @@ function Signup() {
         );
       }
 
-      // Save user
       localStorage.setItem(
         "user",
         JSON.stringify(data.user)
       );
 
-      // Save token if backend returns one
-      if (data.token) {
-        localStorage.setItem(
-          "token",
-          data.token
-        );
-      }
+      localStorage.setItem(
+        "token",
+        data.token
+      );
 
-      navigate("/homepage", {
-        replace: true
-      });
+      if (data.user.role === "ADMIN") {
+        navigate("/admin", {
+          replace: true
+        });
+      } else if (data.user.role === "MANAGER") {
+        navigate("/manager", {
+          replace: true
+        });
+      } else {
+        navigate("/employee", {
+          replace: true
+        });
+      }
 
     } catch (err) {
       console.error(err);
@@ -78,7 +84,8 @@ function Signup() {
     <div
       style={{
         maxWidth: "500px",
-        margin: "50px auto"
+        margin: "50px auto",
+        padding: "20px"
       }}
     >
       <h1>Create Account</h1>
@@ -90,6 +97,7 @@ function Signup() {
       )}
 
       <form onSubmit={handleSubmit}>
+
         <div>
           <label>First Name</label>
           <br />
@@ -168,13 +176,14 @@ function Signup() {
             ? "Creating Account..."
             : "Sign Up"}
         </button>
+
       </form>
 
       <br />
 
       <p>
         Already have an account?{" "}
-        <Link to="/login">
+        <Link to="/">
           Login
         </Link>
       </p>

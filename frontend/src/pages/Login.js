@@ -45,21 +45,36 @@ function Login() {
         );
       }
 
-      if (data.token) {
-        localStorage.setItem(
-          "token",
-          data.token
-        );
-      }
+      // Save JWT token
+      localStorage.setItem(
+        "token",
+        data.token
+      );
 
+      // Save user details
       localStorage.setItem(
         "user",
         JSON.stringify(data.user)
       );
 
-      navigate("/homepage", {
-        replace: true
-      });
+      // Role-based navigation
+      if (data.user.role === "ADMIN") {
+        navigate("/admin", {
+          replace: true
+        });
+      }
+
+      else if (data.user.role === "MANAGER") {
+        navigate("/manager", {
+          replace: true
+        });
+      }
+
+      else {
+        navigate("/employee", {
+          replace: true
+        });
+      }
 
     } catch (err) {
       console.error(err);
@@ -73,7 +88,8 @@ function Login() {
     <div
       style={{
         maxWidth: "500px",
-        margin: "50px auto"
+        margin: "50px auto",
+        padding: "20px"
       }}
     >
       <h1>Login</h1>
@@ -85,6 +101,7 @@ function Login() {
       )}
 
       <form onSubmit={handleSubmit}>
+
         <div>
           <label>Email</label>
           <br />
@@ -123,6 +140,7 @@ function Login() {
             ? "Logging In..."
             : "Login"}
         </button>
+
       </form>
 
       <br />
