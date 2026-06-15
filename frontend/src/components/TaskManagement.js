@@ -6,6 +6,11 @@ function TaskManagement() {
   const [fetchLoading, setFetchLoading] = useState(false);
   const [loading, setLoading] = useState(false);
 
+  const [projects, setProjects] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [projectsLoading, setProjectsLoading] = useState(false);
+  const [usersLoading, setUsersLoading] = useState(false);
+
   const { searchQuery } = useSearch();
 
   const [task, setTask] = useState({
@@ -19,7 +24,57 @@ function TaskManagement() {
 
   useEffect(() => {
     fetchTasks();
+    fetchProjects();
+    fetchUsers();
   }, []);
+
+  const fetchProjects = async () => {
+    try {
+      setProjectsLoading(true);
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://localhost:5001/api/projects", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setProjects(data.projects || []);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setProjectsLoading(false);
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      setUsersLoading(true);
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://localhost:5001/api/employees", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        const fetchedUsers = [];
+        const seenUserIds = new Set();
+        (data.employees || []).forEach(emp => {
+          if (emp.user && !seenUserIds.has(emp.user.id)) {
+            seenUserIds.add(emp.user.id);
+            fetchedUsers.push(emp.user);
+          }
+        });
+        setUsers(fetchedUsers);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setUsersLoading(false);
+    }
+  };
 
   const fetchTasks = async () => {
     try {
@@ -55,8 +110,16 @@ function TaskManagement() {
   };
 
   const createTask = async () => {
-    if (!task.title.trim() || !task.projectId) {
-      alert("Please enter a title and Project ID");
+    if (!task.title.trim()) {
+      alert("Please enter a task title.");
+      return;
+    }
+    if (!task.projectId) {
+      alert("Please select a project.");
+      return;
+    }
+    if (!task.assignedToId) {
+      alert("Please select an employee.");
       return;
     }
     try {
@@ -184,27 +247,57 @@ function TaskManagement() {
           </div>
 
           <div className="form-group">
-            <label htmlFor="task-projectId">Project ID</label>
-            <input
+            <label htmlFor="task-projectId">Project</label>
+            <select
               id="task-projectId"
               name="projectId"
-              placeholder="e.g. 2"
               className="form-control"
               value={task.projectId}
               onChange={handleChange}
-            />
+              disabled={projectsLoading || projects.length === 0}
+            >
+              {projectsLoading ? (
+                <option value="" disabled>Loading projects...</option>
+              ) : projects.length === 0 ? (
+                <option value="" disabled>No Projects Found</option>
+              ) : (
+                <>
+                  <option value="" disabled>Select Project...</option>
+                  {projects.map((p) => (
+                    <option key={p.id} value={p.id}>
+                      {p.name}
+                    </option>
+                  ))}
+                </>
+              )}
+            </select>
           </div>
 
           <div className="form-group">
-            <label htmlFor="task-assigned">Assign To User ID</label>
-            <input
+            <label htmlFor="task-assigned">Assign To</label>
+            <select
               id="task-assigned"
               name="assignedToId"
-              placeholder="e.g. 5"
               className="form-control"
               value={task.assignedToId}
               onChange={handleChange}
-            />
+              disabled={usersLoading || users.length === 0}
+            >
+              {usersLoading ? (
+                <option value="" disabled>Loading users...</option>
+              ) : users.length === 0 ? (
+                <option value="" disabled>No Users Found</option>
+              ) : (
+                <>
+                  <option value="" disabled>Select User...</option>
+                  {users.map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {`${u.firstName} ${u.lastName || ""}`.trim()}
+                    </option>
+                  ))}
+                </>
+              )}
+            </select>
           </div>
 
           <div className="form-group">

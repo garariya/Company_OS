@@ -5,6 +5,7 @@ import DepartmentManagement from "../components/DepartmentManagement";
 import EmployeeManagement from "../components/EmployeeManagement";
 import ProjectManagement from "../components/ProjectManagement";
 import TaskManagement from "../components/TaskManagement";
+import ProjectTeamManagement from "../components/ProjectTeamManagement";
 import DashboardCard from "../components/DashboardCard";
 
 function Admin() {
@@ -112,6 +113,12 @@ function Admin() {
         {(currentView === "dashboard" || currentView === "projects") && (
           <section className="dashboard-section" id="projects-section">
             <ProjectManagement />
+          </section>
+        )}
+
+        {(currentView === "dashboard" || currentView === "teams") && (
+          <section className="dashboard-section" id="teams-section">
+            <ProjectTeamManagement />
           </section>
         )}
 

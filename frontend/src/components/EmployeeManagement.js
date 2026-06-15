@@ -5,6 +5,11 @@ function EmployeeManagement() {
   const [employees, setEmployees] = useState([]);
   const [fetchLoading, setFetchLoading] = useState(false);
   const [loading, setLoading] = useState(false);
+  
+  const [departments, setDepartments] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [deptLoading, setDeptLoading] = useState(false);
+  const [usersLoading, setUsersLoading] = useState(false);
 
   const { searchQuery } = useSearch();
 
@@ -18,7 +23,57 @@ function EmployeeManagement() {
 
   useEffect(() => {
     fetchEmployees();
+    fetchDepartments();
+    fetchUsers();
   }, []);
+
+  const fetchDepartments = async () => {
+    try {
+      setDeptLoading(true);
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://localhost:5001/api/departments", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        setDepartments(data.departments || []);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setDeptLoading(false);
+    }
+  };
+
+  const fetchUsers = async () => {
+    try {
+      setUsersLoading(true);
+      const token = localStorage.getItem("token");
+      const res = await fetch("http://localhost:5001/api/employees", {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      });
+      const data = await res.json();
+      if (res.ok) {
+        const fetchedUsers = [];
+        const seenUserIds = new Set();
+        (data.employees || []).forEach(emp => {
+          if (emp.user && !seenUserIds.has(emp.user.id)) {
+            seenUserIds.add(emp.user.id);
+            fetchedUsers.push(emp.user);
+          }
+        });
+        setUsers(fetchedUsers);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setUsersLoading(false);
+    }
+  };
 
   const fetchEmployees = async () => {
     try {
@@ -54,6 +109,14 @@ function EmployeeManagement() {
   };
 
   const createEmployee = async () => {
+    if (!formData.userId) {
+      alert("Please select an employee.");
+      return;
+    }
+    if (!formData.departmentId) {
+      alert("Please select a department.");
+      return;
+    }
     try {
       setLoading(true);
       const token = localStorage.getItem("token");
@@ -91,6 +154,7 @@ function EmployeeManagement() {
         });
 
         fetchEmployees();
+        fetchUsers();
       }
 
     } catch (error) {
@@ -122,6 +186,7 @@ function EmployeeManagement() {
 
       if (res.ok) {
         fetchEmployees();
+        fetchUsers();
       }
 
     } catch (error) {
@@ -157,27 +222,57 @@ function EmployeeManagement() {
       <div className="management-form">
         <div className="form-grid">
           <div className="form-group">
-            <label htmlFor="userId">User ID</label>
-            <input
+            <label htmlFor="userId">Employee</label>
+            <select
               id="userId"
               name="userId"
-              placeholder="e.g. 1"
               className="form-control"
               value={formData.userId}
               onChange={handleChange}
-            />
+              disabled={usersLoading || users.length === 0}
+            >
+              {usersLoading ? (
+                <option value="" disabled>Loading users...</option>
+              ) : users.length === 0 ? (
+                <option value="" disabled>No Users Found</option>
+              ) : (
+                <>
+                  <option value="" disabled>Select User...</option>
+                  {users.map((u) => (
+                    <option key={u.id} value={u.id}>
+                      {`${u.firstName} ${u.lastName || ""}`.trim()} ({u.email})
+                    </option>
+                  ))}
+                </>
+              )}
+            </select>
           </div>
 
           <div className="form-group">
-            <label htmlFor="departmentId">Department ID</label>
-            <input
+            <label htmlFor="departmentId">Department</label>
+            <select
               id="departmentId"
               name="departmentId"
-              placeholder="e.g. 3"
               className="form-control"
               value={formData.departmentId}
               onChange={handleChange}
-            />
+              disabled={deptLoading || departments.length === 0}
+            >
+              {deptLoading ? (
+                <option value="" disabled>Loading departments...</option>
+              ) : departments.length === 0 ? (
+                <option value="" disabled>No Departments Found</option>
+              ) : (
+                <>
+                  <option value="" disabled>Select Department...</option>
+                  {departments.map((d) => (
+                    <option key={d.id} value={d.id}>
+                      {d.name}
+                    </option>
+                  ))}
+                </>
+              )}
+            </select>
           </div>
 
           <div className="form-group">
