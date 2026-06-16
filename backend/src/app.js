@@ -7,6 +7,7 @@ import employeeRoutes from "./routes/employee.routes.js";
 import projectRoutes from "./routes/project.routes.js";
 import taskRoutes from "./routes/task.routes.js";
 import projectMemberRoutes from "./routes/projectMember.routes.js";
+import analyticsRoutes from "./routes/analytics.routes.js";
 
 
 const app = express();
@@ -39,6 +40,11 @@ app.use(
 app.use(
   "/api/tasks",
   taskRoutes
+)
+
+app.use(
+  "/api/analytics",
+  analyticsRoutes
 )
 
 app.use(

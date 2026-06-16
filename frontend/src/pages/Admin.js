@@ -8,56 +8,140 @@ import TaskManagement from "../components/TaskManagement";
 import ProjectTeamManagement from "../components/ProjectTeamManagement";
 import DashboardCard from "../components/DashboardCard";
 
+import TaskStatusChart from "../components/TaskStatusChart";
+import ProjectProgressChart from "../components/ProjectProgressChart";
+import EmployeeWorkloadChart from "../components/EmployeeWorkloadChart";
+import DepartmentAnalytics from "../components/DepartmentAnalytics";
+
 function Admin() {
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const currentView = searchParams.get("view") || "dashboard";
 
-  const [stats, setStats] = useState({
-    departments: 0,
-    employees: 0,
-    projects: 0,
-    tasks: 0
-  });
+  const [analyticsData, setAnalyticsData] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  // Filters State
+  const [selectedProjectId, setSelectedProjectId] = useState("");
+  const [selectedDepartmentId, setSelectedDepartmentId] = useState("");
+  const [selectedEmployeeId, setSelectedEmployeeId] = useState("");
 
   useEffect(() => {
-    fetchStats();
+    fetchAnalytics();
   }, []);
 
-  const fetchStats = async () => {
+  const fetchAnalytics = async () => {
     try {
+      setLoading(true);
+      setError(null);
       const token = localStorage.getItem("token");
       const headers = { Authorization: `Bearer ${token}` };
 
-      // Fetch all endpoint lists to calculate stats
-      const [deptRes, empRes, projRes, taskRes] = await Promise.all([
-        fetch("http://localhost:5001/api/departments", { headers }),
-        fetch("http://localhost:5001/api/employees", { headers }),
-        fetch("http://localhost:5001/api/projects", { headers }),
-        fetch("http://localhost:5001/api/tasks", { headers })
-      ]);
+      const res = await fetch("http://localhost:5001/api/analytics/dashboard", { headers });
+      const data = await res.json();
 
-      const [deptData, empData, projData, taskData] = await Promise.all([
-        deptRes.json(),
-        empRes.json(),
-        projRes.json(),
-        taskRes.json()
-      ]);
-
-      setStats({
-        departments: deptData.departments?.length || 0,
-        employees: empData.employees?.length || 0,
-        projects: projData.projects?.length || 0,
-        tasks: taskData.tasks?.length || 0
-      });
-
-    } catch (error) {
-      console.error("Failed to fetch dashboard statistics", error);
+      if (res.ok) {
+        setAnalyticsData(data);
+      } else {
+        setError(data.message || "Unable to load analytics.");
+      }
+    } catch (err) {
+      console.error("Failed to fetch dashboard analytics", err);
+      setError("Unable to load analytics.");
+    } finally {
+      setLoading(false);
     }
   };
 
+  // KPI counts
+  const stats = {
+    departments: analyticsData?.departments || 0,
+    employees: analyticsData?.employees || 0,
+    projects: analyticsData?.projects || 0,
+    tasks: analyticsData?.tasks || 0
+  };
+
+  // FILTER LOGIC
+  // 1. Task Status Chart counts
+  let filteredTodo = analyticsData?.todoTasks || 0;
+  let filteredInProgress = analyticsData?.inProgressTasks || 0;
+  let filteredDone = analyticsData?.doneTasks || 0;
+
+  if (selectedProjectId) {
+    const proj = analyticsData?.projectProgress?.find(p => p.id === Number(selectedProjectId));
+    filteredTodo = proj ? proj.todoTasks : 0;
+    filteredInProgress = proj ? proj.inProgressTasks : 0;
+    filteredDone = proj ? proj.doneTasks : 0;
+  } else if (selectedEmployeeId) {
+    const emp = analyticsData?.employeeWorkload?.find(e => e.id === Number(selectedEmployeeId));
+    filteredTodo = emp ? emp.todoTasks : 0;
+    filteredInProgress = emp ? emp.inProgressTasks : 0;
+    filteredDone = emp ? emp.doneTasks : 0;
+  }
+
+  // 2. Project Progress List
+  let filteredProjects = analyticsData?.projectProgress || [];
+  if (selectedProjectId) {
+    filteredProjects = filteredProjects.filter(p => p.id === Number(selectedProjectId));
+  }
+
+  // 3. Employee Workload List
+  let filteredWorkload = analyticsData?.employeeWorkload || [];
+  if (selectedDepartmentId) {
+    filteredWorkload = filteredWorkload.filter(e => e.departmentId === Number(selectedDepartmentId));
+  }
+  if (selectedEmployeeId) {
+    filteredWorkload = filteredWorkload.filter(e => e.id === Number(selectedEmployeeId));
+  }
+
+  // 4. Department Analytics List
+  let filteredDepartments = analyticsData?.departmentAnalytics || [];
+  if (selectedDepartmentId) {
+    filteredDepartments = filteredDepartments.filter(d => d.id === Number(selectedDepartmentId));
+  }
+
+  const handleResetFilters = () => {
+    setSelectedProjectId("");
+    setSelectedDepartmentId("");
+    setSelectedEmployeeId("");
+  };
+
+  if (loading) {
+    return (
+      <div className="loading-indicator" style={{ minHeight: "300px" }}>
+        <div className="spinner"></div>
+        <span>Loading dashboard analytics...</span>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="error-message-card" style={{
+        padding: "24px",
+        textAlign: "center",
+        backgroundColor: "#FEF2F2",
+        color: "#991B1B",
+        borderRadius: "8px",
+        margin: "24px 0",
+        border: "1px solid #FCA5A5"
+      }}>
+        <svg fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" width="48" height="48" style={{ margin: "0 auto 12px" }}>
+          <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+        <h3 style={{ marginBottom: "8px" }}>Error Loading Dashboard</h3>
+        <p>{error}</p>
+        <button className="btn btn-primary" style={{ marginTop: "16px" }} onClick={fetchAnalytics}>
+          Retry
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div>
+      {/* Top KPI Cards (Always visible at the top) */}
       <div className="cards-grid">
         <DashboardCard
           title="Total Departments"
@@ -97,32 +181,111 @@ function Admin() {
         />
       </div>
 
+      {currentView === "dashboard" && (
+        <div style={{ marginBottom: "32px" }}>
+          {/* Filters Bar */}
+          <div className="management-form" style={{ background: "var(--bg-card)", border: "1px solid var(--border-color)", padding: "16px", marginBottom: "24px" }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+              <span style={{ fontWeight: "700", fontSize: "14px", color: "var(--text-main)" }}>Filter Analytics</span>
+              {(selectedProjectId || selectedDepartmentId || selectedEmployeeId) && (
+                <button className="btn" style={{ padding: "4px 8px", fontSize: "12px", color: "#EF4444", background: "rgba(239, 68, 68, 0.05)" }} onClick={handleResetFilters}>
+                  Clear All Filters
+                </button>
+              )}
+            </div>
+            <div className="form-grid" style={{ marginBottom: 0 }}>
+              <div className="form-group">
+                <label htmlFor="project-filter">Project</label>
+                <select
+                  id="project-filter"
+                  className="form-control"
+                  value={selectedProjectId}
+                  onChange={(e) => {
+                    setSelectedProjectId(e.target.value);
+                    setSelectedEmployeeId(""); // mutually exclusive to prevent empty combinations
+                  }}
+                >
+                  <option value="">All Projects</option>
+                  {analyticsData?.projectProgress?.map(p => (
+                    <option key={p.id} value={p.id}>{p.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group">
+                <label htmlFor="department-filter">Department</label>
+                <select
+                  id="department-filter"
+                  className="form-control"
+                  value={selectedDepartmentId}
+                  onChange={(e) => setSelectedDepartmentId(e.target.value)}
+                >
+                  <option value="">All Departments</option>
+                  {analyticsData?.departmentAnalytics?.map(d => (
+                    <option key={d.id} value={d.id}>{d.name}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="form-group">
+                <label htmlFor="employee-filter">Employee (Task Status)</label>
+                <select
+                  id="employee-filter"
+                  className="form-control"
+                  value={selectedEmployeeId}
+                  onChange={(e) => {
+                    setSelectedEmployeeId(e.target.value);
+                    setSelectedProjectId(""); // mutually exclusive
+                  }}
+                >
+                  <option value="">All Employees</option>
+                  {analyticsData?.employeeWorkload?.map(e => (
+                    <option key={e.id} value={e.id}>{e.name}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          {/* Middle Layout: Task Status Chart */}
+          <div style={{ display: "flex", gap: "24px", marginBottom: "24px", flexWrap: "wrap" }}>
+            <TaskStatusChart todo={filteredTodo} inProgress={filteredInProgress} done={filteredDone} />
+          </div>
+
+          {/* Bottom Layout: Project Progress, Workload, and Department Analytics */}
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: "24px" }}>
+            <ProjectProgressChart projects={filteredProjects} />
+            <EmployeeWorkloadChart workload={filteredWorkload} />
+            <DepartmentAnalytics departments={filteredDepartments} />
+          </div>
+        </div>
+      )}
+
+      {/* Existing CRUD Views */}
       <div className="content-sections">
-        {(currentView === "dashboard" || currentView === "departments") && (
+        {currentView === "departments" && (
           <section className="dashboard-section" id="departments-section">
             <DepartmentManagement />
           </section>
         )}
 
-        {(currentView === "dashboard" || currentView === "employees") && (
+        {currentView === "employees" && (
           <section className="dashboard-section" id="employees-section">
             <EmployeeManagement />
           </section>
         )}
 
-        {(currentView === "dashboard" || currentView === "projects") && (
+        {currentView === "projects" && (
           <section className="dashboard-section" id="projects-section">
             <ProjectManagement />
           </section>
         )}
 
-        {(currentView === "dashboard" || currentView === "teams") && (
+        {currentView === "teams" && (
           <section className="dashboard-section" id="teams-section">
             <ProjectTeamManagement />
           </section>
         )}
 
-        {(currentView === "dashboard" || currentView === "tasks") && (
+        {currentView === "tasks" && (
           <section className="dashboard-section" id="tasks-section">
             <TaskManagement />
           </section>
