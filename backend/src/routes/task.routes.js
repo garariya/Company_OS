@@ -5,7 +5,8 @@ import {
   getTasks,
   getTaskById,
   updateTask,
-  deleteTask
+  deleteTask,
+  updateTaskStatus
 } from "../controllers/task.controller.js";
 
 import authMiddleware from "../middleware/auth.middleware.js";
@@ -34,6 +35,12 @@ router.put(
   "/:id",
   authMiddleware,
   updateTask
+);
+
+router.patch(
+  "/:id/status",
+  authMiddleware,
+  updateTaskStatus
 );
 
 router.delete(

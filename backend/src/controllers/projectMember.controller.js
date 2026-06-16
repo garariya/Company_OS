@@ -85,6 +85,11 @@ export const getProjectMembers = async (req, res) => {
                 firstName: true,
                 lastName: true
               }
+            },
+            department: {
+              select: {
+                name: true
+              }
             }
           }
         }

@@ -5,6 +5,7 @@ import Signup from "./pages/Signup";
 import Admin from "./pages/Admin";
 import Manager from "./pages/Manager";
 import Employee from "./pages/Employee";
+import ProjectTeamPage from "./pages/ProjectTeamPage";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardLayout from "./layouts/DashboardLayout";
@@ -43,6 +44,14 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={["EMPLOYEE"]}>
                   <Employee />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/project-teams"
+              element={
+                <ProtectedRoute allowedRoles={["ADMIN", "MANAGER", "EMPLOYEE"]}>
+                  <ProjectTeamPage />
                 </ProtectedRoute>
               }
             />

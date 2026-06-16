@@ -225,3 +225,69 @@ export const deleteTask = async (req, res) => {
     });
   }
 };
+
+
+// UPDATE TASK STATUS
+export const updateTaskStatus = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    const allowedStatuses = ["TODO", "IN_PROGRESS", "DONE"];
+    if (!status || !allowedStatuses.includes(status)) {
+      return res.status(400).json({
+        message: "Invalid status value. Must be TODO, IN_PROGRESS, or DONE"
+      });
+    }
+
+    const task = await db.task.findUnique({
+      where: {
+        id: Number(id)
+      }
+    });
+
+    if (!task) {
+      return res.status(404).json({
+        message: "Task not found"
+      });
+    }
+
+    // Authorization: Employees can only update their own assigned tasks
+    if (req.user.role === "EMPLOYEE" && task.assignedToId !== req.user.id) {
+      return res.status(403).json({
+        message: "Access denied. You can only update status for tasks assigned to you."
+      });
+    }
+
+    const updatedTask = await db.task.update({
+      where: {
+        id: Number(id)
+      },
+      data: {
+        status
+      },
+      include: {
+        project: true,
+        assignedTo: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            email: true
+          }
+        }
+      }
+    });
+
+    return res.status(200).json({
+      message: "Task status updated successfully",
+      task: updatedTask
+    });
+
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({
+      message: "Internal Server Error"
+    });
+  }
+};
