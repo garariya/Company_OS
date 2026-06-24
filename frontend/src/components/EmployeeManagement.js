@@ -194,6 +194,44 @@ function EmployeeManagement() {
     }
   };
 
+  const handleRoleChange = async (employeeId, newRole) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`http://localhost:5001/api/employees/${employeeId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ role: newRole })
+      });
+
+      const data = await res.json();
+      if (res.ok) {
+        setEmployees(prev =>
+          prev.map(emp => {
+            if (emp.id === employeeId) {
+              return {
+                ...emp,
+                user: {
+                  ...emp.user,
+                  role: newRole
+                }
+              };
+            }
+            return emp;
+          })
+        );
+        alert("Role updated successfully");
+      } else {
+        alert(data.message || "Failed to update role");
+      }
+    } catch (error) {
+      console.error("Failed to update employee role:", error);
+      alert("Failed to update role due to network error");
+    }
+  };
+
   // Search filtering
   const filteredEmployees = employees.filter((emp) => {
     const q = searchQuery.toLowerCase();
@@ -348,6 +386,7 @@ function EmployeeManagement() {
                 <th>Designation</th>
                 <th>Salary</th>
                 <th>Joining Date</th>
+                <th>Role</th>
                 <th>Actions</th>
               </tr>
             </thead>
@@ -364,6 +403,26 @@ function EmployeeManagement() {
                   <td>{employee.designation}</td>
                   <td>{employee.salary ? `$${Number(employee.salary).toLocaleString()}` : "N/A"}</td>
                   <td>{new Date(employee.joiningDate).toLocaleDateString()}</td>
+                  <td>
+                    <select
+                      className="form-control"
+                      style={{
+                        padding: "4px 8px",
+                        fontSize: "12px",
+                        height: "30px",
+                        width: "120px",
+                        backgroundPosition: "right 6px center",
+                        backgroundSize: "16px",
+                        paddingRight: "24px"
+                      }}
+                      value={employee.user?.role || "EMPLOYEE"}
+                      onChange={(e) => handleRoleChange(employee.id, e.target.value)}
+                    >
+                      <option value="EMPLOYEE">EMPLOYEE</option>
+                      <option value="MANAGER">MANAGER</option>
+                      <option value="ADMIN">ADMIN</option>
+                    </select>
+                  </td>
                   <td>
                     <button
                       className="btn btn-danger"

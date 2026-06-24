@@ -147,13 +147,17 @@ export const updateEmployee = async (req, res) => {
     const {
       departmentId,
       designation,
-      salary
+      salary,
+      role
     } = req.body;
 
     const employee =
       await db.employee.findUnique({
         where: {
           id: Number(id)
+        },
+        include: {
+          user: true
         }
       });
 
@@ -161,6 +165,41 @@ export const updateEmployee = async (req, res) => {
       return res.status(404).json({
         message: "Employee not found"
       });
+    }
+
+    let roleUpdated = false;
+    if (role && role !== employee.user.role) {
+      const allowedRoles = ["ADMIN", "MANAGER", "EMPLOYEE"];
+      if (!allowedRoles.includes(role)) {
+        return res.status(400).json({
+          message: "Invalid role value"
+        });
+      }
+
+      await db.user.update({
+        where: {
+          id: employee.userId
+        },
+        data: {
+          role
+        }
+      });
+
+      roleUpdated = true;
+
+      // Automatically create a notification
+      try {
+        await db.notification.create({
+          data: {
+            userId: employee.userId,
+            title: "Role Updated",
+            message: `Your role has been changed to ${role}`,
+            isRead: false
+          }
+        });
+      } catch (notifErr) {
+        console.error("Error creating role updated notification:", notifErr);
+      }
     }
 
     const updatedEmployee =
@@ -182,11 +221,17 @@ export const updateEmployee = async (req, res) => {
             salary
               ? parseFloat(salary)
               : employee.salary
+        },
+        include: {
+          user: true,
+          department: true
         }
       });
 
     return res.status(200).json({
-      message: "Employee updated successfully",
+      message: roleUpdated 
+        ? "Employee and role updated successfully" 
+        : "Employee updated successfully",
       employee: updatedEmployee
     });
 

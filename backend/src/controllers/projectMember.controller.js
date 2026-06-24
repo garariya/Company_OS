@@ -50,6 +50,20 @@ export const assignEmployeeToProject = async (req, res) => {
       }
     });
 
+    // Create Notification for the assigned employee (user)
+    try {
+      await db.notification.create({
+        data: {
+          userId: employee.userId,
+          title: "Added To Project",
+          message: `You have been added to ${project.name}`,
+          isRead: false
+        }
+      });
+    } catch (notifErr) {
+      console.error("Error creating project membership notification:", notifErr);
+    }
+
     return res.status(200).json({
       message: "Employee assigned successfully"
     });

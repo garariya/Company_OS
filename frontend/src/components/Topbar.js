@@ -1,6 +1,7 @@
 import React from "react";
 import { getUser } from "../utils/auth";
 import { useSearch } from "../utils/SearchContext";
+import NotificationsDropdown from "./NotificationsDropdown";
 
 function Topbar({ onToggleSidebar }) {
   const { searchQuery, setSearchQuery } = useSearch();
@@ -42,6 +43,8 @@ function Topbar({ onToggleSidebar }) {
       </div>
 
       <div className="topbar-right">
+        <NotificationsDropdown />
+
         <span className={`role-badge ${roleName.toLowerCase()}`}>
           {roleName}
         </span>

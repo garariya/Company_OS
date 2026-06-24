@@ -50,6 +50,16 @@ export const createTask = async (req, res) => {
       }
     });
 
+    // Create Notification for the assigned user
+    await db.notification.create({
+      data: {
+        userId: Number(assignedToId),
+        title: "New Task Assigned",
+        message: `You have been assigned task "${title}"`,
+        isRead: false
+      }
+    });
+
     return res.status(201).json({
       message: "Task created successfully",
       task
@@ -174,6 +184,32 @@ export const updateTask = async (req, res) => {
       }
     });
 
+    // If status transitions to DONE, notify all ADMINs and MANAGERs
+    if (status === "DONE" && task.status !== "DONE") {
+      try {
+        const staffToNotify = await db.user.findMany({
+          where: {
+            role: {
+              in: ["ADMIN", "MANAGER"]
+            }
+          }
+        });
+
+        for (const u of staffToNotify) {
+          await db.notification.create({
+            data: {
+              userId: u.id,
+              title: "Task Completed",
+              message: `Task "${updatedTask.title}" has been completed`,
+              isRead: false
+            }
+          });
+        }
+      } catch (notifErr) {
+        console.error("Error creating completion notifications in updateTask:", notifErr);
+      }
+    }
+
     return res.status(200).json({
       message: "Task updated successfully",
       task: updatedTask
@@ -278,6 +314,32 @@ export const updateTaskStatus = async (req, res) => {
         }
       }
     });
+
+    // If status transitions to DONE, notify all ADMINs and MANAGERs
+    if (status === "DONE" && task.status !== "DONE") {
+      try {
+        const staffToNotify = await db.user.findMany({
+          where: {
+            role: {
+              in: ["ADMIN", "MANAGER"]
+            }
+          }
+        });
+
+        for (const u of staffToNotify) {
+          await db.notification.create({
+            data: {
+              userId: u.id,
+              title: "Task Completed",
+              message: `Task "${updatedTask.title}" has been completed`,
+              isRead: false
+            }
+          });
+        }
+      } catch (notifErr) {
+        console.error("Error creating completion notifications in updateTaskStatus:", notifErr);
+      }
+    }
 
     return res.status(200).json({
       message: "Task status updated successfully",
