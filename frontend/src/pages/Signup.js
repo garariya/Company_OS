@@ -57,6 +57,14 @@ function Signup() {
         "token",
         data.token
       );
+      localStorage.setItem(
+        "accessToken",
+        data.accessToken
+      );
+      localStorage.setItem(
+        "refreshToken",
+        data.refreshToken
+      );
 
       if (data.user.role === "ADMIN") {
         navigate("/admin", {

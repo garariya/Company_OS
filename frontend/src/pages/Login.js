@@ -50,6 +50,14 @@ function Login() {
         "token",
         data.token
       );
+      localStorage.setItem(
+        "accessToken",
+        data.accessToken
+      );
+      localStorage.setItem(
+        "refreshToken",
+        data.refreshToken
+      );
 
       // Save user details
       localStorage.setItem(

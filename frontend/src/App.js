@@ -6,6 +6,7 @@ import Admin from "./pages/Admin";
 import Manager from "./pages/Manager";
 import Employee from "./pages/Employee";
 import ProjectTeamPage from "./pages/ProjectTeamPage";
+import Chat from "./pages/Chat";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import DashboardLayout from "./layouts/DashboardLayout";
@@ -52,6 +53,14 @@ function App() {
               element={
                 <ProtectedRoute allowedRoles={["ADMIN", "MANAGER", "EMPLOYEE"]}>
                   <ProjectTeamPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/chat"
+              element={
+                <ProtectedRoute allowedRoles={["ADMIN", "MANAGER", "EMPLOYEE"]}>
+                  <Chat />
                 </ProtectedRoute>
               }
             />

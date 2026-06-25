@@ -44,14 +44,19 @@ model User {
 
   role        Role     @default(EMPLOYEE)
 
-  employee    Employee?
+  employee Employee?
 
   createdProjects Project[] @relation("ProjectCreator")
   assignedTasks   Task[]    @relation("TaskAssignee")
   notifications   Notification[] @relation("UserNotifications")
 
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  sentMessages Message[] @relation("UserMessages")
+
+  conversationParticipants ConversationParticipant[]
+  refreshTokens            RefreshToken[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Department {
@@ -159,4 +164,51 @@ model Notification {
   createdAt DateTime @default(now())
 
   user      User     @relation("UserNotifications", fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Conversation {
+  id        Int       @id @default(autoincrement())
+  createdAt DateTime  @default(now())
+
+  participants  ConversationParticipant[]
+  messages      Message[]
+}
+
+model ConversationParticipant {
+  id                Int       @id @default(autoincrement())
+
+  conversationId    Int
+  userId            Int
+
+  conversation Conversation @relation(fields: [conversationId], references: [id])
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model Message {
+  id             Int      @id @default(autoincrement())
+
+  conversationId Int
+
+  senderId       Int
+
+  content        String
+
+  isRead         Boolean  @default(false)
+
+  createdAt      DateTime @default(now())
+
+  conversation Conversation @relation(fields: [conversationId],references: [id])
+
+  sender User @relation("UserMessages", fields: [senderId], references: [id])
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  token     String   @unique @db.VarChar(512)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

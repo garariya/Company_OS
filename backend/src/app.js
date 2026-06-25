@@ -9,6 +9,7 @@ import taskRoutes from "./routes/task.routes.js";
 import projectMemberRoutes from "./routes/projectMember.routes.js";
 import analyticsRoutes from "./routes/analytics.routes.js";
 import notificationRoutes from "./routes/notification.routes.js";
+import chatRoutes from "./routes/chat.routes.js";
 
 
 const app = express();
@@ -56,5 +57,10 @@ app.use(
 app.use(
   "/api",
   projectMemberRoutes
+)
+
+app.use(
+  "/api/chat",
+  chatRoutes
 )
 export default app;
