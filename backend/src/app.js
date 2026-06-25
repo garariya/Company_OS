@@ -18,6 +18,13 @@ app.use(cors());
 
 app.use(express.json());
 
+app.get("/", (req, res) => {
+  res.json({
+    success: true,
+    message: "Company OS Backend Running"
+  });
+});
+
 app.use(
   "/api/auth",
   authRoutes
