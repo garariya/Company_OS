@@ -2,8 +2,9 @@ import React, { useState, useEffect } from "react";
 import { getUser, getToken } from "../utils/auth";
 import ConversationList from "../components/chat/ConversationList";
 import ChatWindow from "../components/chat/ChatWindow";
+import { API_URL } from "../config/api";
 
-const API_BASE = "http://localhost:5001/api";
+const API_BASE = `${API_URL}/api`;
 
 function Chat() {
   const currentUser = getUser();

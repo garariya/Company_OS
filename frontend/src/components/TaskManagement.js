@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSearch } from "../utils/SearchContext";
+import { API_URL } from "../config/api";
 
 function TaskManagement() {
   const [tasks, setTasks] = useState([]);
@@ -40,7 +41,7 @@ function TaskManagement() {
     try {
       setProjectsLoading(true);
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5001/api/projects", {
+      const res = await fetch(`${API_URL}/api/projects`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -60,7 +61,7 @@ function TaskManagement() {
     try {
       setUsersLoading(true);
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5001/api/employees", {
+      const res = await fetch(`${API_URL}/api/employees`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -90,7 +91,7 @@ function TaskManagement() {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        "http://localhost:5001/api/tasks",
+        `${API_URL}/api/tasks`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -135,7 +136,7 @@ function TaskManagement() {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        "http://localhost:5001/api/tasks",
+        `${API_URL}/api/tasks`,
         {
           method: "POST",
           headers: {
@@ -181,7 +182,7 @@ function TaskManagement() {
       setUpdateLoading(prev => ({ ...prev, [taskId]: true }));
       const token = localStorage.getItem("token");
       
-      const res = await fetch(`http://localhost:5001/api/tasks/${taskId}/status`, {
+      const res = await fetch(`${API_URL}/api/tasks/${taskId}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -216,7 +217,7 @@ function TaskManagement() {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        `http://localhost:5001/api/tasks/${id}`,
+        `${API_URL}/api/tasks/${id}`,
         {
           method: "DELETE",
           headers: {

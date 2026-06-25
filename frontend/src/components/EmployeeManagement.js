@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSearch } from "../utils/SearchContext";
+import { API_URL } from "../config/api";
 
 function EmployeeManagement() {
   const [employees, setEmployees] = useState([]);
@@ -31,7 +32,7 @@ function EmployeeManagement() {
     try {
       setDeptLoading(true);
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5001/api/departments", {
+      const res = await fetch(`${API_URL}/api/departments`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -51,7 +52,7 @@ function EmployeeManagement() {
     try {
       setUsersLoading(true);
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5001/api/employees", {
+      const res = await fetch(`${API_URL}/api/employees`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -81,7 +82,7 @@ function EmployeeManagement() {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        "http://localhost:5001/api/employees",
+        `${API_URL}/api/employees`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -122,7 +123,7 @@ function EmployeeManagement() {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        "http://localhost:5001/api/employees",
+        `${API_URL}/api/employees`,
         {
           method: "POST",
           headers: {
@@ -171,7 +172,7 @@ function EmployeeManagement() {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        `http://localhost:5001/api/employees/${id}`,
+        `${API_URL}/api/employees/${id}`,
         {
           method: "DELETE",
           headers: {
@@ -197,7 +198,7 @@ function EmployeeManagement() {
   const handleRoleChange = async (employeeId, newRole) => {
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5001/api/employees/${employeeId}`, {
+      const res = await fetch(`${API_URL}/api/employees/${employeeId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",

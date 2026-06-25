@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSearch } from "../utils/SearchContext";
+import { API_URL } from "../config/api";
 
 function ProjectTeamManagement() {
   const [projects, setProjects] = useState([]);
@@ -33,7 +34,7 @@ function ProjectTeamManagement() {
     try {
       setProjectsLoading(true);
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5001/api/projects", {
+      const res = await fetch(`${API_URL}/api/projects`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -53,7 +54,7 @@ function ProjectTeamManagement() {
     try {
       setEmployeesLoading(true);
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5001/api/employees", {
+      const res = await fetch(`${API_URL}/api/employees`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -73,7 +74,7 @@ function ProjectTeamManagement() {
     try {
       setMembersLoading(true);
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5001/api/projects/${projectId}/members`, {
+      const res = await fetch(`${API_URL}/api/projects/${projectId}/members`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -105,7 +106,7 @@ function ProjectTeamManagement() {
     try {
       setAssignLoading(true);
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5001/api/projects/${selectedProjectId}/members`, {
+      const res = await fetch(`${API_URL}/api/projects/${selectedProjectId}/members`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -138,7 +139,7 @@ function ProjectTeamManagement() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch(`http://localhost:5001/api/projects/${selectedProjectId}/members/${employeeId}`, {
+      const res = await fetch(`${API_URL}/api/projects/${selectedProjectId}/members/${employeeId}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`

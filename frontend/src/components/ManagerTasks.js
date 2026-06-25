@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSearch } from "../utils/SearchContext";
+import { API_URL } from "../config/api";
 
 function ManagerTasks() {
   const [tasks, setTasks] = useState([]);
@@ -25,7 +26,7 @@ function ManagerTasks() {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        "http://localhost:5001/api/tasks",
+        `${API_URL}/api/tasks`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -53,7 +54,7 @@ function ManagerTasks() {
       setUpdateLoading(prev => ({ ...prev, [taskId]: true }));
       const token = localStorage.getItem("token");
       
-      const res = await fetch(`http://localhost:5001/api/tasks/${taskId}/status`, {
+      const res = await fetch(`${API_URL}/api/tasks/${taskId}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",

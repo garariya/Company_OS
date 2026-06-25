@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { getUser, getToken } from "../utils/auth";
+import { API_URL } from "../config/api";
 
 function ProjectTeamPage() {
   const user = getUser() || { role: "EMPLOYEE", id: null };
@@ -36,7 +37,7 @@ function ProjectTeamPage() {
 
       if (user.role === "ADMIN" || user.role === "MANAGER") {
         // Admins and Managers view all projects
-        const res = await fetch("http://localhost:5001/api/projects", { headers });
+        const res = await fetch(`${API_URL}/api/projects`, { headers });
         const data = await res.json();
         if (res.ok) {
           setProjects(data.projects || []);
@@ -44,7 +45,7 @@ function ProjectTeamPage() {
       } else {
         // Employees only view projects they are assigned to
         // 1. Fetch all employees to find their employee record
-        const empRes = await fetch("http://localhost:5001/api/employees", { headers });
+        const empRes = await fetch(`${API_URL}/api/employees`, { headers });
         const empData = await empRes.json();
         
         if (empRes.ok) {
@@ -55,7 +56,7 @@ function ProjectTeamPage() {
           if (currentEmployee) {
             // 2. Fetch projects for this employeeId
             const projRes = await fetch(
-              `http://localhost:5001/api/employees/${currentEmployee.id}/projects`,
+              `${API_URL}/api/employees/${currentEmployee.id}/projects`,
               { headers }
             );
             const projData = await projRes.json();
@@ -75,7 +76,7 @@ function ProjectTeamPage() {
   const fetchProjectDetails = async (projectId) => {
     try {
       setDetailsLoading(true);
-      const res = await fetch(`http://localhost:5001/api/projects/${projectId}`, {
+      const res = await fetch(`${API_URL}/api/projects/${projectId}`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -92,7 +93,7 @@ function ProjectTeamPage() {
   const fetchProjectMembers = async (projectId) => {
     try {
       setMembersLoading(true);
-      const res = await fetch(`http://localhost:5001/api/projects/${projectId}/members`, {
+      const res = await fetch(`${API_URL}/api/projects/${projectId}/members`, {
         headers: { Authorization: `Bearer ${token}` }
       });
       const data = await res.json();
@@ -113,7 +114,7 @@ function ProjectTeamPage() {
 
     try {
       const res = await fetch(
-        `http://localhost:5001/api/projects/${selectedProjectId}/members/${employeeId}`,
+        `${API_URL}/api/projects/${selectedProjectId}/members/${employeeId}`,
         {
           method: "DELETE",
           headers: { Authorization: `Bearer ${token}` }

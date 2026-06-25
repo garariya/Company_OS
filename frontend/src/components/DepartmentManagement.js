@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSearch } from "../utils/SearchContext";
+import { API_URL } from "../config/api";
 
 function DepartmentManagement() {
   const [department, setDepartment] = useState("");
@@ -19,7 +20,7 @@ function DepartmentManagement() {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        "http://localhost:5001/api/departments",
+        `${API_URL}/api/departments`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -49,7 +50,7 @@ function DepartmentManagement() {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        "http://localhost:5001/api/departments",
+        `${API_URL}/api/departments`,
         {
           method: "POST",
           headers: {

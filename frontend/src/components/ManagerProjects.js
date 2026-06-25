@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSearch } from "../utils/SearchContext";
+import { API_URL } from "../config/api";
 
 function ManagerProjects() {
   const [projects, setProjects] = useState([]);
@@ -16,7 +17,7 @@ function ManagerProjects() {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        "http://localhost:5001/api/projects",
+        `${API_URL}/api/projects`,
         {
           headers: {
             Authorization: `Bearer ${token}`

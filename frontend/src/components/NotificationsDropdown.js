@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import NotificationItem from "./NotificationItem";
 import { getToken } from "../utils/auth";
+import { API_URL } from "../config/api";
 
 function NotificationsDropdown() {
   const [notifications, setNotifications] = useState([]);
@@ -12,7 +13,7 @@ function NotificationsDropdown() {
       const token = getToken();
       if (!token) return;
 
-      const res = await fetch("http://localhost:5001/api/notifications", {
+      const res = await fetch(`${API_URL}/api/notifications`, {
         headers: {
           Authorization: `Bearer ${token}`
         }
@@ -61,7 +62,7 @@ function NotificationsDropdown() {
         prev.map((n) => (n.id === id ? { ...n, isRead: true } : n))
       );
 
-      const res = await fetch(`http://localhost:5001/api/notifications/${id}/read`, {
+      const res = await fetch(`${API_URL}/api/notifications/${id}/read`, {
         method: "PATCH",
         headers: {
           Authorization: `Bearer ${token}`
@@ -86,7 +87,7 @@ function NotificationsDropdown() {
       // Update state instantly first (optimistic update)
       setNotifications((prev) => prev.filter((n) => n.id !== id));
 
-      const res = await fetch(`http://localhost:5001/api/notifications/${id}`, {
+      const res = await fetch(`${API_URL}/api/notifications/${id}`, {
         method: "DELETE",
         headers: {
           Authorization: `Bearer ${token}`

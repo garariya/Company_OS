@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useSearch } from "../utils/SearchContext";
 import { getUser } from "../utils/auth";
+import { API_URL } from "../config/api";
 
 function MyProjects() {
   const [projects, setProjects] = useState([]);
@@ -20,8 +21,8 @@ function MyProjects() {
 
       // Fetch projects and tasks to find user-related projects
       const [projRes, taskRes] = await Promise.all([
-        fetch("http://localhost:5001/api/projects", { headers }),
-        fetch("http://localhost:5001/api/tasks", { headers })
+        fetch(`${API_URL}/api/projects`, { headers }),
+        fetch(`${API_URL}/api/tasks`, { headers })
       ]);
 
       const [projData, taskData] = await Promise.all([

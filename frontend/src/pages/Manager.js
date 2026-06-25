@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+import { API_URL } from "../config/api";
 
 import ManagerProjects from "../components/ManagerProjects";
 import ManagerTasks from "../components/ManagerTasks";
@@ -32,7 +33,7 @@ function Manager() {
       const token = localStorage.getItem("token");
       const headers = { Authorization: `Bearer ${token}` };
 
-      const res = await fetch("http://localhost:5001/api/analytics/dashboard", { headers });
+      const res = await fetch(`${API_URL}/api/analytics/dashboard`, { headers });
       const data = await res.json();
 
       if (res.ok) {

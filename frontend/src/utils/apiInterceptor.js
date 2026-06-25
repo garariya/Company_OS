@@ -1,4 +1,6 @@
 // global fetch interceptor to handle token refresh automatically
+import { API_URL } from "../config/api";
+
 const originalFetch = window.fetch;
 
 let isRefreshing = false;
@@ -17,7 +19,7 @@ window.fetch = async function (url, options = {}) {
   // Only intercept requests to our backend API
   const isApiRequest =
     typeof url === "string" &&
-    (url.startsWith("http://localhost:5001/api") || url.startsWith("/api"));
+    (url.startsWith(`${API_URL}/api`) || url.startsWith("/api"));
 
   if (!isApiRequest) {
     return originalFetch(url, options);
@@ -82,7 +84,7 @@ window.fetch = async function (url, options = {}) {
 
       // Call refresh endpoint to get new token
       try {
-        const refreshRes = await originalFetch("http://localhost:5001/api/auth/refresh", {
+        const refreshRes = await originalFetch(`${API_URL}/api/auth/refresh`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

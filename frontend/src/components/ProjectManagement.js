@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSearch } from "../utils/SearchContext";
+import { API_URL } from "../config/api";
 
 function ProjectManagement() {
   const [projects, setProjects] = useState([]);
@@ -23,7 +24,7 @@ function ProjectManagement() {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        "http://localhost:5001/api/projects",
+        `${API_URL}/api/projects`,
         {
           headers: {
             Authorization: `Bearer ${token}`
@@ -57,7 +58,7 @@ function ProjectManagement() {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        "http://localhost:5001/api/projects",
+        `${API_URL}/api/projects`,
         {
           method: "POST",
           headers: {
@@ -95,7 +96,7 @@ function ProjectManagement() {
       const token = localStorage.getItem("token");
 
       const res = await fetch(
-        `http://localhost:5001/api/projects/${id}`,
+        `${API_URL}/api/projects/${id}`,
         {
           method: "DELETE",
           headers: {
