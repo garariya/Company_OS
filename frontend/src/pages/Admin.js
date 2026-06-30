@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, {  useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import { API_URL } from "../config/api";
 
@@ -31,6 +31,7 @@ function Admin() {
   useEffect(() => {
     fetchAnalytics();
   }, []);
+
 
   const fetchAnalytics = async () => {
     try {
